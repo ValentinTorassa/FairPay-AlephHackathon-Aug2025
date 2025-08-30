@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, forwardRef, useImperativeHandle } from 'react'
 import { useSessionStatus } from '../hooks/useSessionStatus'
 import { SessionApiService } from '../services/sessionApi'
 import type { SessionMode } from '../types/session'
@@ -8,9 +8,19 @@ interface StatusPanelProps {
   className?: string
 }
 
-export function StatusPanel({ mode = { type: 'single' }, className = '' }: StatusPanelProps) {
+export interface StatusPanelRef {
+  refresh: () => void
+}
+
+export const StatusPanel = forwardRef<StatusPanelRef, StatusPanelProps>(
+  ({ mode = { type: 'single' }, className = '' }, ref) => {
   const [isPollingEnabled, setIsPollingEnabled] = useState(true)
   const { status, isLoading, error, refresh } = useSessionStatus(mode, isPollingEnabled, 2500)
+
+  // Expose refresh function to parent
+  useImperativeHandle(ref, () => ({
+    refresh
+  }))
 
   // Mock controls for demo
   const apiService = SessionApiService.getInstance()
@@ -174,4 +184,4 @@ export function StatusPanel({ mode = { type: 'single' }, className = '' }: Statu
       </div>
     </div>
   )
-}
+})

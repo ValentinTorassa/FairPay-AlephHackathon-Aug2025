@@ -1,11 +1,18 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useWeb3 } from '../context/Web3Context'
-import { StatusPanel } from '../components/StatusPanel'
+import { StatusPanel, type StatusPanelRef } from '../components/StatusPanel'
+import { UsageControls } from '../components/UsageControls'
 import type { SessionMode } from '../types/session'
 
 export function Session() {
   const { account } = useWeb3()
   const [mode, setMode] = useState<SessionMode>({ type: 'single', sessionId: 'session_123' })
+  const statusPanelRef = useRef<StatusPanelRef>(null)
+
+  const handleUsageUpdate = () => {
+    // Trigger refresh of status panel when usage changes
+    statusPanelRef.current?.refresh()
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
@@ -90,7 +97,10 @@ export function Session() {
           </div>
 
           {/* Live Status Panel */}
-          <StatusPanel mode={mode} />
+          <StatusPanel mode={mode} ref={statusPanelRef} />
+
+          {/* Usage Controls */}
+          <UsageControls mode={mode} onUsageUpdate={handleUsageUpdate} />
 
           {/* Mode Information */}
           <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
