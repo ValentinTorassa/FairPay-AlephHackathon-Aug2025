@@ -52,14 +52,14 @@ export function AddDepositCard({ mode, onDepositComplete }: AddDepositCardProps)
         // Update context with new deposit
         addDeposit(amount)
         
-        // Show success toast
+        // Show success toast with transaction hash
         showToast(
-          `Successfully added ${amount} ETH to your deposit!`,
+          `Added ${amount} ETH! Tx: ${result.txHash?.slice(0, 10)}...`,
           'success'
         )
         
-        // Show local success message
-        setSuccess(`Added ${amount} ETH successfully!`)
+        // Show local success message with hash
+        setSuccess(`Added ${amount} ETH! Transaction: ${result.txHash?.slice(0, 12)}...`)
         setAmount('')
         
         // Trigger refresh of parent components

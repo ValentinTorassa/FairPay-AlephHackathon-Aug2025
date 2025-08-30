@@ -40,8 +40,8 @@ export const StatusPanel = forwardRef<StatusPanelRef, StatusPanelProps>(
         onTransactionUpdate?.()
       }
     } else {
-      // Use single mode (backend simulation)
-      const result = apiService.startSession('0.1')
+      // Use single mode (backend endpoint)
+      const result = await apiService.startSession('0.1', '0.0000001')
       if (result.success) {
         setIsPollingEnabled(true)
         refresh()

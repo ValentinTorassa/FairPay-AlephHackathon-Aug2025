@@ -35,9 +35,9 @@ export function Deposit() {
       let result
 
       if (mode.type === 'single') {
-        // Use backend API for single mode
+        // Use backend API for single mode - start session with initial deposit
         const sessionApi = SessionApiService.getInstance()
-        result = await sessionApi.addDeposit(amount)
+        result = await sessionApi.startSession(amount, '0.0000001')
       } else {
         // Use contract service for direct mode
         const contractService = new ContractService(provider)
@@ -48,16 +48,17 @@ export function Deposit() {
         // Store deposit in context and localStorage
         addDeposit(amount)
 
-        // Show success toast
+        // Show success toast with transaction hash
         showToast(
-          `Initial deposit of ${amount} ETH successful! Redirecting to dashboard...`,
-          'success'
+          `Deposit successful! Tx: ${result.txHash?.slice(0, 10)}... Redirecting to dashboard...`,
+          'success',
+          4000
         )
 
         // Redirect to dashboard
         setTimeout(() => {
           navigate('/dashboard', { replace: true })
-        }, 1500)
+        }, 2000)
       } else {
         setError(result.error || 'Deposit failed')
         showToast(

@@ -3,8 +3,9 @@ import type { SessionStatus, SessionMode } from '../types/session'
 import type { TransactionResult } from '../types/transaction'
 import { TransactionHistoryService } from './transactionHistory'
 
-// Mock API service - replace with actual backend calls
+// API service for backend communication
 export class SessionApiService {
+  private static readonly BASE_URL = 'http://localhost:3000/api'
   private static instance: SessionApiService
   private autoInterval?: NodeJS.Timeout
   private mockData = {
@@ -63,26 +64,69 @@ export class SessionApiService {
     }
   }
 
-  // Mock methods to control session state for demo
-  startSession(deposit: string = '0.1'): TransactionResult {
+  // Start session with backend endpoint
+  async startSession(deposit: string = '0.1', unitPrice: string = '0.0000001'): Promise<TransactionResult> {
     try {
+      // Update local mock data first
       this.mockData.isActive = true
       this.mockData.deposit = deposit
+      this.mockData.unitPrice = unitPrice
       this.mockData.consumedUnits = 0
-      
-      // Generate mock transaction hash and add to history
-      const txHash = this.getTxHistoryService().generateMockTxHash()
+
+      // Call backend endpoint
+      const response = await fetch(`${SessionApiService.BASE_URL}/start-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          unitPrice: parseFloat(unitPrice),
+          deposit: parseFloat(deposit)
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`Backend error: ${response.status} ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      const txHash = data.txHash
+
+      if (!txHash) {
+        throw new Error('No transaction hash returned from backend')
+      }
+
+      // Add transaction to history with real hash
       this.getTxHistoryService().addTransaction(txHash, 'Start Session', 'pending')
       
-      // Simulate transaction mining after 3-5 seconds
-      setTimeout(() => {
-        this.getTxHistoryService().updateTransactionStatus(txHash, 'mined', 1, 123456)
-      }, Math.random() * 2000 + 3000)
+      // Monitor transaction status (will update when mined)
+      this.monitorTransaction(txHash)
       
       return { success: true, txHash }
     } catch (error) {
-      return { success: false, error: 'Failed to start session' }
+      console.error('Failed to start session:', error)
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to start session' 
+      }
     }
+  }
+
+  // Monitor transaction status
+  private async monitorTransaction(txHash: string) {
+    const checkStatus = async () => {
+      try {
+        // Try to get transaction receipt (this would need to be implemented with ethers provider)
+        // For now, simulate mining after a delay
+        setTimeout(() => {
+          this.getTxHistoryService().updateTransactionStatus(txHash, 'mined', 1, Date.now())
+        }, Math.random() * 10000 + 5000) // 5-15 seconds
+      } catch (error) {
+        console.error('Error monitoring transaction:', error)
+      }
+    }
+    
+    checkStatus()
   }
 
   stopSession(): TransactionResult {
@@ -191,31 +235,51 @@ export class SessionApiService {
     return this.mockData.autoMode
   }
 
-  // Deposit method for single mode
+  // Deposit method for single mode - using backend endpoint
   async addDeposit(amount: string): Promise<{ success: boolean; txHash?: string; error?: string }> {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-
-      // Update mock data
+      // Update local mock data
       const currentDeposit = parseFloat(this.mockData.deposit)
       const additionalDeposit = parseFloat(amount)
       const newTotal = (currentDeposit + additionalDeposit).toFixed(6)
       
       this.mockData.deposit = newTotal
 
-      // Generate mock transaction hash and add to history
-      const txHash = this.getTxHistoryService().generateMockTxHash()
+      // Call backend add-deposit endpoint
+      const response = await fetch(`${SessionApiService.BASE_URL}/add-deposit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: parseFloat(amount)
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`Backend error: ${response.status} ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      const txHash = data.result
+
+      if (!txHash) {
+        throw new Error('No transaction hash returned from backend')
+      }
+
+      // Add transaction to history with real hash
       this.getTxHistoryService().addTransaction(txHash, `Add Deposit (${amount} ETH)`, 'pending')
       
-      // Simulate transaction mining after 2-4 seconds
-      setTimeout(() => {
-        this.getTxHistoryService().updateTransactionStatus(txHash, 'mined', 1, Date.now())
-      }, Math.random() * 2000 + 2000)
+      // Monitor transaction status
+      this.monitorTransaction(txHash)
       
       return { success: true, txHash }
     } catch (error) {
-      return { success: false, error: 'Failed to add deposit' }
+      console.error('Failed to add deposit:', error)
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to add deposit' 
+      }
     }
   }
 }
