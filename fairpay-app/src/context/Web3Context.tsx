@@ -9,7 +9,8 @@ interface Web3ContextType {
   signer: JsonRpcSigner | null
   isConnected: boolean
   isMetaMaskInstalled: boolean
-  connect: () => Promise<void>
+  isAuthed: boolean
+  connect: () => Promise<boolean>
   disconnect: () => void
   switchToSepolia: () => Promise<void>
 }
@@ -31,6 +32,7 @@ export function Web3Provider({ children }: Web3ProviderProps) {
   const [isMetaMaskInstalled, setIsMetaMaskInstalled] = useState<boolean>(false)
 
   const isConnected = !!account
+  const isAuthed = !!account && chainId === SEPOLIA_CHAIN_ID
 
   useEffect(() => {
     const checkMetaMask = () => {
@@ -72,11 +74,11 @@ export function Web3Provider({ children }: Web3ProviderProps) {
     }
   }, [])
 
-  const connect = async () => {
+  const connect = async (): Promise<boolean> => {
     try {
       if (!window.ethereum) {
         console.warn('MetaMask not detected. Please install MetaMask to connect your wallet.')
-        return
+        return false
       }
 
       const accounts = await window.ethereum.request({
@@ -98,9 +100,15 @@ export function Web3Provider({ children }: Web3ProviderProps) {
 
       if (Number(network.chainId) !== SEPOLIA_CHAIN_ID) {
         await switchToSepolia()
+        // Check if switch was successful
+        const updatedNetwork = await browserProvider.getNetwork()
+        return Number(updatedNetwork.chainId) === SEPOLIA_CHAIN_ID
       }
+
+      return true
     } catch (error) {
       console.error('Failed to connect wallet:', error)
+      return false
     }
   }
 
@@ -154,6 +162,7 @@ export function Web3Provider({ children }: Web3ProviderProps) {
     signer,
     isConnected,
     isMetaMaskInstalled,
+    isAuthed,
     connect,
     disconnect,
     switchToSepolia,
