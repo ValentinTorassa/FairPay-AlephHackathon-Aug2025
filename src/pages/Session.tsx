@@ -3,6 +3,7 @@ import { useWeb3 } from '../context/Web3Context'
 import { StatusPanel, type StatusPanelRef } from '../components/StatusPanel'
 import { UsageControls } from '../components/UsageControls'
 import { AddDepositCard } from '../components/AddDepositCard'
+import { ReportUsage } from '../components/ReportUsage'
 import { TxHistory } from '../components/TxHistory'
 import type { SessionMode } from '../types/session'
 
@@ -109,6 +110,15 @@ export function Session() {
 
           {/* Usage Controls */}
           <UsageControls mode={mode} onUsageUpdate={handleUsageUpdate} />
+
+          {/* Report Usage */}
+          <ReportUsage 
+            mode={mode} 
+            onUsageReported={() => {
+              handleUsageUpdate()
+              handleTransactionUpdate()
+            }} 
+          />
 
           {/* Add Deposit Card */}
           <AddDepositCard 

@@ -235,6 +235,58 @@ export class SessionApiService {
     return this.mockData.autoMode
   }
 
+  // Report usage to backend (oracle → backend → chain)
+  async reportUsage(units: number): Promise<{ success: boolean; txHash?: string; error?: string }> {
+    try {
+      if (!this.mockData.isActive) {
+        return { success: false, error: 'Session not active. Please start a session first.' }
+      }
+
+      if (units <= 0) {
+        return { success: false, error: 'Units must be greater than 0' }
+      }
+
+      // Call backend report-usage endpoint
+      const response = await fetch(`${SessionApiService.BASE_URL}/report-usage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          units: units
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`Backend error: ${response.status} ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      const txHash = data.result
+
+      if (!txHash) {
+        throw new Error('No transaction hash returned from backend')
+      }
+
+      // Update local consumed units
+      this.mockData.consumedUnits += units
+
+      // Add transaction to history with descriptive message
+      this.getTxHistoryService().addTransaction(txHash, `Report Usage (${units} units)`, 'pending')
+      
+      // Monitor transaction status
+      this.monitorTransaction(txHash)
+      
+      return { success: true, txHash }
+    } catch (error) {
+      console.error('Failed to report usage:', error)
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to report usage' 
+      }
+    }
+  }
+
   // Deposit method for single mode - using backend endpoint
   async addDeposit(amount: string): Promise<{ success: boolean; txHash?: string; error?: string }> {
     try {
