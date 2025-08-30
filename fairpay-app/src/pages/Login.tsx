@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useWeb3 } from '../context/Web3Context'
+import { Container } from '../components/ui/Container'
+import { Card, CardContent } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
 import MetaMaskLogo from '../assets/metamask.svg'
 
 export function Login() {
@@ -36,77 +39,96 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-gray-800 rounded-2xl shadow-xl border border-gray-700 p-8">
-        <div className="text-center">
-          <div className="mb-6">
-            <img 
-              src={MetaMaskLogo} 
-              alt="MetaMask" 
-              className="w-16 h-16 mx-auto mb-4"
-            />
-            <h1 className="text-2xl font-bold text-gray-100 mb-2">
-              Sign in to FairPay
-            </h1>
-            <p className="text-gray-300 text-sm">
-              Connect your MetaMask wallet to access the platform
-            </p>
-          </div>
-
-          {!isMetaMaskInstalled && (
-            <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
-              <p className="text-red-200 text-sm mb-2">
-                ⚠️ MetaMask not detected
-              </p>
-              <p className="text-red-300 text-xs">
-                Please install MetaMask to continue
-              </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-blue-950/20 flex items-center justify-center py-20">
+      <Container maxWidth="md">
+        <Card className="animate-fade-in" variant="elevated">
+          <CardContent className="text-center space-y-8">
+            {/* Header */}
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <div className="relative">
+                  <img 
+                    src={MetaMaskLogo} 
+                    alt="MetaMask" 
+                    className="w-16 h-16 mx-auto"
+                  />
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-xs">FP</span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold bg-gradient-to-br from-white to-gray-300 bg-clip-text text-transparent">
+                  Sign in to FairPay
+                </h1>
+                <p className="text-gray-300 text-lg">
+                  Connect your MetaMask wallet to access the platform
+                </p>
+              </div>
             </div>
-          )}
 
-          <button
-            onClick={handleSignIn}
-            disabled={isConnecting}
-            className={`w-full flex items-center justify-center space-x-3 px-6 py-4 rounded-lg font-semibold text-white transition-all duration-200 ${
-              isMetaMaskInstalled && !isConnecting
-                ? 'bg-orange-500 hover:bg-orange-600 hover:shadow-lg transform hover:scale-105'
-                : 'bg-gray-600 cursor-not-allowed'
-            }`}
-          >
-            <img 
-              src={MetaMaskLogo} 
-              alt="MetaMask" 
-              className="w-6 h-6"
-            />
-            <span>
-              {isConnecting 
-                ? 'Connecting...' 
-                : isMetaMaskInstalled 
-                  ? 'Sign in with MetaMask' 
-                  : 'Install MetaMask'
-              }
-            </span>
-          </button>
+            {/* Warning for missing MetaMask */}
+            {!isMetaMaskInstalled && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl animate-slide-up">
+                <div className="flex items-center justify-center space-x-2 mb-2">
+                  <span className="text-red-400">⚠️</span>
+                  <p className="text-red-200 font-medium">
+                    MetaMask not detected
+                  </p>
+                </div>
+                <p className="text-red-300 text-sm">
+                  Please install MetaMask to continue
+                </p>
+              </div>
+            )}
 
-          <div className="mt-6 pt-6 border-t border-gray-700">
-            <div className="bg-blue-900/20 border border-blue-800 rounded-lg p-4">
-              <p className="text-blue-200 text-xs">
-                💡 <strong>Demo Note:</strong> This demo signs transactions with a static backend wallet. 
+            {/* Sign In Button */}
+            <div className="space-y-4">
+              <Button
+                onClick={handleSignIn}
+                disabled={isConnecting}
+                loading={isConnecting}
+                size="lg"
+                className={`w-full ${
+                  isMetaMaskInstalled && !isConnecting
+                    ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700'
+                    : ''
+                }`}
+                variant={isMetaMaskInstalled ? 'primary' : 'secondary'}
+              >
+                <img 
+                  src={MetaMaskLogo} 
+                  alt="MetaMask" 
+                  className="w-5 h-5 mr-2"
+                />
+                {isConnecting 
+                  ? 'Connecting...' 
+                  : isMetaMaskInstalled 
+                    ? 'Sign in with MetaMask' 
+                    : 'Install MetaMask'
+                }
+              </Button>
+            </div>
+
+            {/* Demo Note */}
+            <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+              <p className="text-blue-200 text-sm leading-relaxed">
+                <span className="font-medium">💡 Demo Note:</span> This demo signs transactions with a static backend wallet. 
                 MetaMask is shown for UX demonstration purposes.
               </p>
             </div>
-          </div>
 
-          <div className="mt-4">
-            <button
+            {/* Back Button */}
+            <Button
               onClick={() => navigate('/')}
-              className="text-indigo-400 hover:text-indigo-300 text-sm font-medium"
+              variant="ghost"
+              className="text-blue-400 hover:text-blue-300"
             >
               ← Back to Landing
-            </button>
-          </div>
-        </div>
-      </div>
+            </Button>
+          </CardContent>
+        </Card>
+      </Container>
     </div>
   )
 }
