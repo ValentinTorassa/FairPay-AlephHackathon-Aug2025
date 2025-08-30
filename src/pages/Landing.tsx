@@ -120,8 +120,8 @@ export function Landing() {
                   <p className="text-sm font-medium">Start Session</p>
                   <div className="mt-3 space-y-2">
                     <div className="flex gap-2">
-                      <input className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900" placeholder="Deposit" defaultValue="0.01" />
-                      <input className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900" placeholder="Unit Price" defaultValue="0.000001" />
+                      <input className="flex-1 max-w-[100px] rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900" placeholder="Deposit" defaultValue="0.01" />
+                      <input className="flex-1 max-w-[100px] rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900" placeholder="Unit Price" defaultValue="0.000001" />
                     </div>
                     <button className="w-full rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
                       Start Session
