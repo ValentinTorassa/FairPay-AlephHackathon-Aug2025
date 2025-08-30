@@ -5,13 +5,13 @@ export function Landing() {
   const { isAuthed } = useWeb3()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+      <div className="max-w-md mx-auto bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl font-bold text-gray-100 mb-4">
             Welcome to FairPay
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-300 mb-6">
             Fair and transparent payment platform powered by blockchain
           </p>
           
@@ -30,7 +30,7 @@ export function Landing() {
           <div className="space-y-3">
             {isAuthed ? (
               <div className="space-y-3">
-                <div className="text-sm text-green-600 mb-3">
+                <div className="text-sm text-green-400 mb-3">
                   ✅ You're already signed in!
                 </div>
                 <Link
@@ -41,7 +41,7 @@ export function Landing() {
                 </Link>
                 <Link
                   to="/session"
-                  className="block w-full border border-indigo-600 text-indigo-600 hover:bg-indigo-50 font-bold py-3 px-4 rounded-lg transition-colors duration-200"
+                  className="block w-full border border-indigo-500 text-indigo-400 hover:bg-indigo-900/20 font-bold py-3 px-4 rounded-lg transition-colors duration-200"
                 >
                   Manage Sessions
                 </Link>
@@ -56,8 +56,8 @@ export function Landing() {
             )}
           </div>
 
-          <div className="mt-6 pt-6 border-t border-gray-100">
-            <p className="text-xs text-gray-500">
+          <div className="mt-6 pt-6 border-t border-gray-700">
+            <p className="text-xs text-gray-400">
               🚀 Public landing page - no wallet required
             </p>
           </div>
