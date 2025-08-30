@@ -1,4 +1,5 @@
-import { ReactNode, ButtonHTMLAttributes, forwardRef } from 'react'
+import { forwardRef } from 'react'
+import type { ReactNode, ButtonHTMLAttributes } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
@@ -36,11 +37,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
 
   const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`
 
-  if (asChild && children && typeof children === 'object' && 'props' in children) {
+  if (asChild && children && typeof children === 'object' && children && 'type' in children) {
     // Clone the child element and add our classes
-    return children.type({ 
-      ...children.props, 
-      className: `${children.props.className || ''} ${classes}`.trim(),
+    const childElement = children as any
+    return childElement.type({ 
+      ...childElement.props, 
+      className: `${childElement.props?.className || ''} ${classes}`.trim(),
       ref
     })
   }
