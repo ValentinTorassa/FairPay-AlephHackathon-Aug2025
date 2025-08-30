@@ -1,10 +1,11 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useWeb3 } from '../context/Web3Context'
+import fairPayLogo from '../assets/FairPay.png'
 
 export function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { account, chainId, isConnected, isAuthed, isMetaMaskInstalled, connect, disconnect, switchToSepolia } = useWeb3()
+  const { account, chainId, isConnected, isAuthed, isMetaMaskInstalled, hasDeposited, connect, disconnect, switchToSepolia } = useWeb3()
 
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -20,7 +21,8 @@ export function Navbar() {
     }
     const success = await connect()
     if (success) {
-      navigate('/dashboard')
+      // Redirect to deposit page if user hasn't deposited yet
+      navigate(hasDeposited ? '/dashboard' : '/deposit')
     }
   }
 
@@ -40,9 +42,11 @@ export function Navbar() {
               to="/" 
               className="flex items-center space-x-2 text-xl font-semibold text-white hover:text-blue-400 transition-colors"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FP</span>
-              </div>
+              <img 
+                src={fairPayLogo} 
+                alt="FairPay Logo" 
+                className="w-8 h-8 rounded-lg shadow-sm"
+              />
               <span>FairPay</span>
             </Link>
             

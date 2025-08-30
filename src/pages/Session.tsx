@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { useWeb3 } from '../context/Web3Context'
 import { StatusPanel, type StatusPanelRef } from '../components/StatusPanel'
 import { UsageControls } from '../components/UsageControls'
+import { AddDepositCard } from '../components/AddDepositCard'
 import { TxHistory } from '../components/TxHistory'
 import type { SessionMode } from '../types/session'
 
@@ -108,6 +109,15 @@ export function Session() {
 
           {/* Usage Controls */}
           <UsageControls mode={mode} onUsageUpdate={handleUsageUpdate} />
+
+          {/* Add Deposit Card */}
+          <AddDepositCard 
+            mode={mode} 
+            onDepositComplete={() => {
+              handleUsageUpdate()
+              handleTransactionUpdate()
+            }} 
+          />
 
           {/* Transaction History */}
           <TxHistory onRefresh={txHistoryRefresh} />

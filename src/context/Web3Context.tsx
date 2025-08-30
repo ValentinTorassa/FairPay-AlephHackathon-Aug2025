@@ -10,9 +10,14 @@ interface Web3ContextType {
   isConnected: boolean
   isMetaMaskInstalled: boolean
   isAuthed: boolean
+  hasDeposited: boolean
+  totalDeposited: string
   connect: () => Promise<boolean>
   disconnect: () => void
   switchToSepolia: () => Promise<void>
+  setHasDeposited: (deposited: boolean) => void
+  addDeposit: (amount: string) => void
+  checkDepositStatus: () => void
 }
 
 const Web3Context = createContext<Web3ContextType | undefined>(undefined)
@@ -30,9 +35,53 @@ export function Web3Provider({ children }: Web3ProviderProps) {
   const [provider, setProvider] = useState<BrowserProvider | null>(null)
   const [signer, setSigner] = useState<JsonRpcSigner | null>(null)
   const [isMetaMaskInstalled, setIsMetaMaskInstalled] = useState<boolean>(false)
+  const [hasDeposited, setHasDepositedState] = useState<boolean>(false)
+  const [totalDeposited, setTotalDeposited] = useState<string>('0.0')
 
   const isConnected = !!account
   const isAuthed = !!account && chainId === SEPOLIA_CHAIN_ID
+
+  // Check deposit status from localStorage on mount and account change
+  const checkDepositStatus = () => {
+    const stored = localStorage.getItem('fairpay_has_deposited')
+    const storedAmount = localStorage.getItem('fairpay_deposit_amount')
+    
+    if (stored === 'true' && account) {
+      setHasDepositedState(true)
+      setTotalDeposited(storedAmount || '0.0')
+    } else {
+      setHasDepositedState(false)
+      setTotalDeposited('0.0')
+    }
+  }
+
+  const setHasDeposited = (deposited: boolean) => {
+    setHasDepositedState(deposited)
+    if (deposited) {
+      localStorage.setItem('fairpay_has_deposited', 'true')
+    } else {
+      localStorage.removeItem('fairpay_has_deposited')
+      localStorage.removeItem('fairpay_deposit_amount')
+      setTotalDeposited('0.0')
+    }
+  }
+
+  const addDeposit = (amount: string) => {
+    const currentDeposit = parseFloat(totalDeposited)
+    const newAmount = parseFloat(amount)
+    const newTotal = (currentDeposit + newAmount).toString()
+    
+    setTotalDeposited(newTotal)
+    localStorage.setItem('fairpay_deposit_amount', newTotal)
+    
+    if (!hasDeposited) {
+      setHasDeposited(true)
+    }
+  }
+
+  useEffect(() => {
+    checkDepositStatus()
+  }, [account])
 
   useEffect(() => {
     const checkMetaMask = () => {
@@ -117,6 +166,7 @@ export function Web3Provider({ children }: Web3ProviderProps) {
     setChainId(null)
     setProvider(null)
     setSigner(null)
+    setHasDeposited(false)
   }
 
   const switchToSepolia = async () => {
@@ -163,9 +213,14 @@ export function Web3Provider({ children }: Web3ProviderProps) {
     isConnected,
     isMetaMaskInstalled,
     isAuthed,
+    hasDeposited,
+    totalDeposited,
     connect,
     disconnect,
     switchToSepolia,
+    setHasDeposited,
+    addDeposit,
+    checkDepositStatus,
   }
 
   return <Web3Context.Provider value={value}>{children}</Web3Context.Provider>

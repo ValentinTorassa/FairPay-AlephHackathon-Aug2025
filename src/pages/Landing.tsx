@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { useWeb3 } from "../context/Web3Context";
 import { DEMO_MODE, SINGLE_WALLET_ADDRESS, CONTRACT_ADDRESS, ETHERSCAN_BASE } from "../constants/config";
+import fairPayLogo from "../assets/FairPay.png";
 
 export function Landing() {
   const { isAuthed } = useWeb3();
@@ -35,13 +36,11 @@ export function Landing() {
           <div className="space-y-6">
             {/* Logo mark */}
             <div className="inline-flex items-center gap-3">
-              <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg ring-1 ring-white/20">
-                {/* simple ETH + scale glyph */}
-                <svg viewBox="0 0 64 64" className="h-8 w-8 text-white" fill="none">
-                  <path d="M32 6L18 30l14 8 14-8L32 6Z" fill="currentColor" opacity=".95"/>
-                  <path d="M8 30h48M16 30c0 6-4 12-8 12s-8-6-8-12m56 0c0 6 4 12 8 12s8-6 8-12" stroke="currentColor" strokeWidth="2" opacity=".6"/>
-                </svg>
-              </span>
+              <img 
+                src={fairPayLogo} 
+                alt="FairPay Logo" 
+                className="h-14 w-14 rounded-2xl shadow-lg ring-1 ring-white/20"
+              />
               <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
                 FairPay
               </h1>
@@ -119,10 +118,14 @@ export function Landing() {
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
                   <p className="text-sm font-medium">Start Session</p>
-                  <div className="mt-3 flex gap-2">
-                    <input className="w-28 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900" placeholder="Deposit" defaultValue="0.01" />
-                    <input className="w-36 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900" placeholder="Unit Price" defaultValue="0.000001" />
-                    <button className="rounded-lg bg-blue-600 px-3 py-2 text-sm text-white">Start</button>
+                  <div className="mt-3 space-y-2">
+                    <div className="flex gap-2">
+                      <input className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900" placeholder="Deposit" defaultValue="0.01" />
+                      <input className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900" placeholder="Unit Price" defaultValue="0.000001" />
+                    </div>
+                    <button className="w-full rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700 transition-colors">
+                      Start Session
+                    </button>
                   </div>
                 </div>
                 <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">

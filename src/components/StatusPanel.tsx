@@ -1,4 +1,5 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
+import { useWeb3 } from '../context/Web3Context'
 import { useSessionStatus } from '../hooks/useSessionStatus'
 import { SessionApiService } from '../services/sessionApi'
 import { TransactionMonitorService } from '../services/transactionMonitor'
@@ -16,6 +17,7 @@ export interface StatusPanelRef {
 
 export const StatusPanel = forwardRef<StatusPanelRef, StatusPanelProps>(
   ({ mode = { type: 'single' }, className = '', onTransactionUpdate }, ref) => {
+  const { totalDeposited } = useWeb3()
   const [isPollingEnabled, setIsPollingEnabled] = useState(true)
   const { status, isLoading, error, refresh } = useSessionStatus(mode, isPollingEnabled, 2500)
 
@@ -116,7 +118,7 @@ export const StatusPanel = forwardRef<StatusPanelRef, StatusPanelProps>(
           </div>
         )}
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Consumed Units */}
           <div className="text-center p-4 bg-blue-900/20 rounded-lg border border-blue-800">
             <div className="text-2xl font-bold text-blue-200 mb-1">
@@ -157,6 +159,17 @@ export const StatusPanel = forwardRef<StatusPanelRef, StatusPanelProps>(
             <div className="text-sm text-green-300 font-medium">Expected Refund</div>
             <div className="text-xs text-green-400 mt-1">
               of {formatEthValue(status?.deposit)} ETH deposit
+            </div>
+          </div>
+
+          {/* Total Deposited */}
+          <div className="text-center p-4 bg-purple-900/20 rounded-lg border border-purple-800">
+            <div className="text-2xl font-bold text-purple-200 mb-1">
+              {formatEthValue(totalDeposited)}
+            </div>
+            <div className="text-sm text-purple-300 font-medium">Total Deposited</div>
+            <div className="text-xs text-purple-400 mt-1">
+              Across all deposits
             </div>
           </div>
         </div>

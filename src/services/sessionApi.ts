@@ -190,4 +190,32 @@ export class SessionApiService {
   getAutoMode(): boolean {
     return this.mockData.autoMode
   }
+
+  // Deposit method for single mode
+  async addDeposit(amount: string): Promise<{ success: boolean; txHash?: string; error?: string }> {
+    try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      // Update mock data
+      const currentDeposit = parseFloat(this.mockData.deposit)
+      const additionalDeposit = parseFloat(amount)
+      const newTotal = (currentDeposit + additionalDeposit).toFixed(6)
+      
+      this.mockData.deposit = newTotal
+
+      // Generate mock transaction hash and add to history
+      const txHash = this.getTxHistoryService().generateMockTxHash()
+      this.getTxHistoryService().addTransaction(txHash, `Add Deposit (${amount} ETH)`, 'pending')
+      
+      // Simulate transaction mining after 2-4 seconds
+      setTimeout(() => {
+        this.getTxHistoryService().updateTransactionStatus(txHash, 'mined', 1, Date.now())
+      }, Math.random() * 2000 + 2000)
+      
+      return { success: true, txHash }
+    } catch (error) {
+      return { success: false, error: 'Failed to add deposit' }
+    }
+  }
 }

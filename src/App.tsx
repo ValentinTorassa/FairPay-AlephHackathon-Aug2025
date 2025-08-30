@@ -1,8 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { DepositProtectedRoute } from './components/DepositProtectedRoute'
 import { Landing } from './pages/Landing'
 import { Login } from './pages/Login'
+import { Deposit } from './pages/Deposit'
 import { Dashboard } from './pages/Dashboard'
 import { Session } from './pages/Session'
 
@@ -17,19 +19,27 @@ function AppContent() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route 
-          path="/dashboard" 
+          path="/deposit" 
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Deposit />
             </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/dashboard" 
+          element={
+            <DepositProtectedRoute>
+              <Dashboard />
+            </DepositProtectedRoute>
           } 
         />
         <Route 
           path="/session" 
           element={
-            <ProtectedRoute>
+            <DepositProtectedRoute>
               <Session />
-            </ProtectedRoute>
+            </DepositProtectedRoute>
           } 
         />
       </Routes>

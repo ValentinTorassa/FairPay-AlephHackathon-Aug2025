@@ -5,6 +5,7 @@ import type { SessionStatus, SessionMode } from '../types/session'
 // Mock contract ABI - replace with actual contract ABI
 const MOCK_CONTRACT_ABI = [
   'function getUserSession(address user) view returns (uint256 consumedUnits, uint256 unitPriceWei, uint256 depositWei, bool isActive)',
+  'function addDeposit() payable external',
 ]
 
 // Mock contract address - replace with actual deployed contract
@@ -72,5 +73,37 @@ export class ContractService {
       depositWei: parseEther('0.1'), // 0.1 ETH in wei
       isActive: true
     }
+  }
+
+  // Add deposit method for direct mode
+  async addDeposit(amount: string): Promise<{ success: boolean; txHash?: string; error?: string }> {
+    if (!this.contract || !this.provider) {
+      throw new Error('Contract not initialized or provider not available')
+    }
+
+    try {
+      // Mock contract deposit call - replace with actual contract interaction
+      const txHash = await this.mockContractDeposit(amount)
+      
+      return { success: true, txHash }
+    } catch (error) {
+      console.error('Failed to add deposit to contract:', error)
+      return { success: false, error: 'Failed to send deposit transaction' }
+    }
+  }
+
+  // Mock contract deposit transaction - replace with actual contract call
+  private async mockContractDeposit(_amount: string): Promise<string> {
+    // Simulate contract transaction delay
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Generate mock transaction hash
+    const txHash = `0x${Math.random().toString(16).slice(2, 66)}`
+    
+    // In a real implementation, this would be:
+    // const tx = await this.contract.addDeposit({ value: parseEther(amount) })
+    // return tx.hash
+    
+    return txHash
   }
 }
