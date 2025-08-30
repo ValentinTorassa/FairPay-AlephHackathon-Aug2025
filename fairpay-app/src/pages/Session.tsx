@@ -2,16 +2,23 @@ import { useState, useRef } from 'react'
 import { useWeb3 } from '../context/Web3Context'
 import { StatusPanel, type StatusPanelRef } from '../components/StatusPanel'
 import { UsageControls } from '../components/UsageControls'
+import { TxHistory } from '../components/TxHistory'
 import type { SessionMode } from '../types/session'
 
 export function Session() {
   const { account } = useWeb3()
   const [mode, setMode] = useState<SessionMode>({ type: 'single', sessionId: 'session_123' })
   const statusPanelRef = useRef<StatusPanelRef>(null)
+  const [txHistoryRefresh, setTxHistoryRefresh] = useState(false)
 
   const handleUsageUpdate = () => {
     // Trigger refresh of status panel when usage changes
     statusPanelRef.current?.refresh()
+  }
+
+  const handleTransactionUpdate = () => {
+    // Trigger refresh of transaction history
+    setTxHistoryRefresh(prev => !prev)
   }
 
   return (
@@ -97,10 +104,13 @@ export function Session() {
           </div>
 
           {/* Live Status Panel */}
-          <StatusPanel mode={mode} ref={statusPanelRef} />
+          <StatusPanel mode={mode} ref={statusPanelRef} onTransactionUpdate={handleTransactionUpdate} />
 
           {/* Usage Controls */}
           <UsageControls mode={mode} onUsageUpdate={handleUsageUpdate} />
+
+          {/* Transaction History */}
+          <TxHistory onRefresh={txHistoryRefresh} />
 
           {/* Mode Information */}
           <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">

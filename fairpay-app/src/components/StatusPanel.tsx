@@ -1,11 +1,13 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
 import { useSessionStatus } from '../hooks/useSessionStatus'
 import { SessionApiService } from '../services/sessionApi'
+import { TransactionMonitorService } from '../services/transactionMonitor'
 import type { SessionMode } from '../types/session'
 
 interface StatusPanelProps {
   mode?: SessionMode
   className?: string
+  onTransactionUpdate?: () => void
 }
 
 export interface StatusPanelRef {
@@ -13,7 +15,7 @@ export interface StatusPanelRef {
 }
 
 export const StatusPanel = forwardRef<StatusPanelRef, StatusPanelProps>(
-  ({ mode = { type: 'single' }, className = '' }, ref) => {
+  ({ mode = { type: 'single' }, className = '', onTransactionUpdate }, ref) => {
   const [isPollingEnabled, setIsPollingEnabled] = useState(true)
   const { status, isLoading, error, refresh } = useSessionStatus(mode, isPollingEnabled, 2500)
 
@@ -24,16 +26,44 @@ export const StatusPanel = forwardRef<StatusPanelRef, StatusPanelProps>(
 
   // Mock controls for demo
   const apiService = SessionApiService.getInstance()
+  const txMonitorService = TransactionMonitorService.getInstance()
 
-  const handleStartDemo = () => {
-    apiService.startSession('0.1')
-    setIsPollingEnabled(true)
-    refresh()
+  const handleStartDemo = async () => {
+    if (mode?.type === 'direct') {
+      // Use direct mode with transaction monitoring
+      const result = await txMonitorService.startSessionDirect('0.1')
+      if (result.success) {
+        setIsPollingEnabled(true)
+        refresh()
+        onTransactionUpdate?.()
+      }
+    } else {
+      // Use single mode (backend simulation)
+      const result = apiService.startSession('0.1')
+      if (result.success) {
+        setIsPollingEnabled(true)
+        refresh()
+        onTransactionUpdate?.()
+      }
+    }
   }
 
-  const handleStopDemo = () => {
-    apiService.stopSession()
-    refresh()
+  const handleStopDemo = async () => {
+    if (mode?.type === 'direct') {
+      // Use direct mode with transaction monitoring
+      const result = await txMonitorService.closeSessionDirect()
+      if (result.success) {
+        refresh()
+        onTransactionUpdate?.()
+      }
+    } else {
+      // Use single mode (backend simulation)
+      const result = apiService.stopSession()
+      if (result.success) {
+        refresh()
+        onTransactionUpdate?.()
+      }
+    }
   }
 
   const handleResetDemo = () => {

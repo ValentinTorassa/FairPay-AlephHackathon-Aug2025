@@ -1,5 +1,7 @@
 import { formatEther, parseEther } from 'ethers'
 import type { SessionStatus, SessionMode } from '../types/session'
+import type { TransactionResult } from '../types/transaction'
+import { TransactionHistoryService } from './transactionHistory'
 
 // Mock API service - replace with actual backend calls
 export class SessionApiService {
@@ -19,6 +21,10 @@ export class SessionApiService {
       SessionApiService.instance = new SessionApiService()
     }
     return SessionApiService.instance
+  }
+
+  private getTxHistoryService() {
+    return TransactionHistoryService.getInstance()
   }
 
   // Mock incrementing consumed units for demo
@@ -58,14 +64,44 @@ export class SessionApiService {
   }
 
   // Mock methods to control session state for demo
-  startSession(deposit: string = '0.1') {
-    this.mockData.isActive = true
-    this.mockData.deposit = deposit
-    this.mockData.consumedUnits = 0
+  startSession(deposit: string = '0.1'): TransactionResult {
+    try {
+      this.mockData.isActive = true
+      this.mockData.deposit = deposit
+      this.mockData.consumedUnits = 0
+      
+      // Generate mock transaction hash and add to history
+      const txHash = this.getTxHistoryService().generateMockTxHash()
+      this.getTxHistoryService().addTransaction(txHash, 'Start Session', 'pending')
+      
+      // Simulate transaction mining after 3-5 seconds
+      setTimeout(() => {
+        this.getTxHistoryService().updateTransactionStatus(txHash, 'mined', 1, 123456)
+      }, Math.random() * 2000 + 3000)
+      
+      return { success: true, txHash }
+    } catch (error) {
+      return { success: false, error: 'Failed to start session' }
+    }
   }
 
-  stopSession() {
-    this.mockData.isActive = false
+  stopSession(): TransactionResult {
+    try {
+      this.mockData.isActive = false
+      
+      // Generate mock transaction hash and add to history
+      const txHash = this.getTxHistoryService().generateMockTxHash()
+      this.getTxHistoryService().addTransaction(txHash, 'Close Session', 'pending')
+      
+      // Simulate transaction mining after 2-4 seconds
+      setTimeout(() => {
+        this.getTxHistoryService().updateTransactionStatus(txHash, 'mined', 1, 123457)
+      }, Math.random() * 2000 + 2000)
+      
+      return { success: true, txHash }
+    } catch (error) {
+      return { success: false, error: 'Failed to close session' }
+    }
   }
 
   resetSession() {
@@ -78,7 +114,7 @@ export class SessionApiService {
     }
   }
 
-  // Usage control endpoints
+  // Usage control endpoints - these don't generate transactions in single mode
   async startAutoUsage(): Promise<{ success: boolean; error?: string }> {
     try {
       if (!this.mockData.isActive) {
